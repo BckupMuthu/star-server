@@ -27,6 +27,7 @@ export const getAnonymizedBallotsByElectionID = async (req: IElectionRequest, re
     const anonymizedBallots: AnonymizedBallot[] = ballots.filter(ballot => {
         return ballot.status === "submitted" && ballot.head;
     }).map((ballot) => {
+        const { date_submitted, ...anonymizedBallot } = ballot;
             return {
                 ballot_id: ballot.ballot_id,
                 election_id: ballot.election_id,
