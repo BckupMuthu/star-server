@@ -2,7 +2,7 @@ import { Box, Button, Divider, FormControlLabel, Link, TextField, Typography } f
 import { useEffect } from "react";
 import { DateTime } from "luxon";
 import { useTranslation } from "react-i18next";
-import { Tip } from "./styles";
+import { SecondaryButton, Tip } from "./styles";
 import i18n from "~/i18n/i18n";
 import { TermType } from "@equal-vote/star-vote-shared/domain_model/ElectionSettings";
 import useSnackbar from "./SnackbarContext";
@@ -49,9 +49,8 @@ export const MailTo = ({ children }) => {
   const { setSnack } = useSnackbar();
   // https://adamsilver.io/blog/the-trouble-with-mailto-email-links-and-what-to-do-instead/
   return <span style={{ whiteSpace: 'nowrap' }}>
-    <Link href={`mailto:${children}`} sx={{ color: 'var(--brand-green)' }}>{children}</Link>
-    <Button
-      variant='contained'
+    <Link href={`mailto:${children}`} sx={{ color: 'var(--brand-pop)' }}>{children}</Link>
+    <SecondaryButton
       onClick={() => {
         navigator.clipboard.writeText(children)
         setSnack({
@@ -61,8 +60,8 @@ export const MailTo = ({ children }) => {
           autoHideDuration: 6000,
         })
       }}
-      sx={{ minWidth: 0, ml: 1, px: 1, py: 0, backgroundColor: 'var(--brand-green)' }}
-    >Copy</Button>
+      sx={{ minWidth: 0, ml: 1, px: 1, py: 0}}
+    >Copy</SecondaryButton>
   </span>
 }
 
@@ -152,7 +151,7 @@ export const useSubstitutedTranslation = (electionTermType = 'election', v = {})
     }
   })
 
-  const applySymbols = (txt) => {
+  const applySymbols = (txt, newWindow) => {
     const applyLinks = (txt) => {
       if (typeof txt !== 'string') return txt;
       let parts = txt.split(rLink)
@@ -162,7 +161,7 @@ export const useSubstitutedTranslation = (electionTermType = 'election', v = {})
         if (parts[i + 1].startsWith('mailto')) {
           return <MailTo key={`link_${i}`}>{parts[i]}</MailTo>
         } else {
-          return <a key={`link_${i}`} href={parts[i + 1]}>{parts[i]}</a>
+          return <a key={`link_${i}`} href={parts[i + 1]} target={newWindow ? '_blank' : '_self'}>{parts[i]}</a>
         }
       })
     }
@@ -203,10 +202,10 @@ export const useSubstitutedTranslation = (electionTermType = 'election', v = {})
     </>
   }
 
-  const handleObject = (obj, skipProcessing = false) => {
+  const handleObject = (obj, skipProcessing=false, newWindow=false) => {
     if (skipProcessing) return obj;
     if (typeof obj == 'number') return obj;
-    if (typeof obj === 'string') return applySymbols(obj);
+    if (typeof obj === 'string') return applySymbols(obj, newWindow);
     if (Array.isArray(obj)) return obj.map(o => handleObject(o));
 
     let newObj = {};
@@ -217,7 +216,7 @@ export const useSubstitutedTranslation = (electionTermType = 'election', v = {})
   }
 
   return {
-    t: (key, v = {}) => handleObject(t(key, { ...values, ...processValues(v) }), v['skipProcessing']),
+    t: (key, v = {}) => handleObject(t(key, { ...values, ...processValues(v) }), v['skipProcessing'], v['newWindow'] ?? false),
     i18n,
   }
 }
@@ -243,6 +242,9 @@ export const openFeedback = () => {
     )[0];
   (button as HTMLButtonElement).click();
 };
+
+
+
 
 export function scrollToElement(e) {
   setTimeout(() => {

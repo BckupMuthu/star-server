@@ -1,6 +1,6 @@
 import React, { useState } from 'react'
 import { Box } from "@mui/material"
-import { StyledButton } from '../../styles';
+import { PrimaryButton } from '../../styles';
 import useElection from '../../ElectionContextProvider';
 import RaceDialog from './RaceDialog';
 import RaceForm from './RaceForm';
@@ -13,6 +13,9 @@ export default function AddRace() {
     const handleOpen = () => setOpen(true);
     const handleClose = () => setOpen(false);
 
+    const [activeStep, setActiveStep] = useState(0);
+    const resetStep = () => setActiveStep(0);
+
     const { editedRace, errors, setErrors, applyRaceUpdate, onAddRace } = useEditRace(null, election.races.length)
 
     const onAdd = async () => {
@@ -24,24 +27,28 @@ export default function AddRace() {
     return (
         <Box sx={{
             display: 'flex',
-            flexDirection: 'row-reverse'
+            flexDirection: 'row'
         }}>
-            <StyledButton
-                type='button'
-                variant="contained"
-                fullWidth={false}
-                sx={{ borderRadius: 28, backgroundColor: 'brand.green' }}
+            <PrimaryButton
                 onClick={handleOpen}
                 disabled={election.state!=='draft'}>
-                Add
-            </StyledButton>
-            <RaceDialog onSaveRace={onAdd} open={open} handleClose={handleClose} editedRace={editedRace}>
+                Add Race
+            </PrimaryButton>
+            <RaceDialog
+              onSaveRace={onAdd}
+              open={open}
+              handleClose={handleClose}
+              editedRace={editedRace}
+              resetStep={resetStep}
+            >
                 <RaceForm
                     race_index={election.races.length}
                     editedRace={editedRace}
                     errors={errors}
                     setErrors={setErrors}
                     applyRaceUpdate={applyRaceUpdate}
+                    activeStep={activeStep}
+                    setActiveStep={setActiveStep}
                 />
             </RaceDialog>
         </Box>

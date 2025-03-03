@@ -7,6 +7,7 @@ import { useSubstitutedTranslation } from "./util";
 import { TermType } from "@equal-vote/star-vote-shared/domain_model/ElectionSettings";
 import useRace from "./RaceContextProvider";
 import useElection from "./ElectionContextProvider";
+import { Link } from "react-router-dom";
 
 // this doesn't work yet, I filed a github issue
 // https://github.com/Modyfi/vite-plugin-yaml/issues/27
@@ -15,7 +16,7 @@ type TipName = keyof typeof en.tips;
 
 export const Tip = (props: {name?: TipName, children?: any, content?: any}) => {
     // TODO: maybe I can insert useElection and useRace within useSubstitutedTranslation?
-    const {t: ts} = useSubstitutedTranslation('election');
+    const {t: ts, i18n} = useSubstitutedTranslation('election');
     const {t: te} = useElection();
     const {t: tr} = useRace();
     let t = (tr() !== undefined) ? tr : (
@@ -24,12 +25,14 @@ export const Tip = (props: {name?: TipName, children?: any, content?: any}) => {
 
     const [clicked, setClicked] = useState(false);
     const [hovered, setHovered] = useState(false);
+    const learnLinkKey = props.name ? `tips.${props.name as string}.learn_link` : 'asdfasdf';
     return <ClickAwayListener onClickAway={() => setClicked(false)}>
         <Tooltip
             title={<>
                 <strong>{props.name ? t(`tips.${props.name as string}.title`) : props.content.title}</strong>
                 <br/>
                 {props.name ? t(`tips.${props.name as string}.description`) : props.content.description}
+                {i18n.exists(learnLinkKey) && <a href={t(learnLinkKey)} target='_blank'>Learn More</a>}
             </>}
             onOpen={() => setHovered(true)}
             onClose={() => setHovered(false)}
@@ -55,24 +58,51 @@ export const Tip = (props: {name?: TipName, children?: any, content?: any}) => {
     </ClickAwayListener>
 }
 
-export const StyledButton = (props) => (
+export const PrimaryButton = (props) => (
     <Button
-        fullWidth
+        variant="contained"
+        {...props}
         sx={{
             p: 1,
             m: 0,
-            boxShadow: 2,
+            boxShadow: 0,
             //backgroundColor: 'primary.main',
+            backgroundColor: 'var(--brand-pop)',//'#073763',
             fontFamily: 'Montserrat, Verdana, sans-serif',
             fontWeight: 'bold',
             fontSize: 18,
-            //color: 'primary.contrastText',
+            color: 'primary.contrastText',
+            //'&:hover': {
+            //    backgroundColor: 'black',
+            //}
+            ...props.sx,
         }}
-        {...props}
     >
-    {props.children}
+        {props.children}
     </Button>
 )
+
+export const SecondaryButton = (props) => (
+    <Button
+        variant="outlined"
+        {...props}
+        sx={{
+            p: 1,
+            fontWeight: 'bold',
+            fontSize: 16,
+            color: 'var(--brand-pop)',
+            borderColor: 'var(--brand-pop)',
+            '&:hover': {
+                color: 'black',
+                borderColor: 'black',
+            },
+            ...props.sx,
+        }}
+    >
+        {props.children}
+    </Button>
+)
+
 
 export const StyledTextField = (props) => (
     <TextField
@@ -82,7 +112,7 @@ export const StyledTextField = (props) => (
             m: 0,
             p: 0,
             boxShadow: 0, // this is set manually in index.css. By default MUI creates weird corner artifacts
-            backgroundColor: 'lightShade.main',
+            // backgroundColor: 'lightShade.main',
         }}
         {...props}
     >
